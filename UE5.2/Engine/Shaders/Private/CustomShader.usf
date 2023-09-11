@@ -1,0 +1,33 @@
+#include "/Engine/Private/Common.ush"
+
+Texture2D SceneColorTexture;
+SamplerState SceneColorTextureSampler;
+
+void MainPS(
+	in noperspective float4 TexCoord : TEXCOORD0,
+	out HALF4_TYPE OutColor : SV_Target0
+)
+{
+	// get texture's size
+	uint Width, Height;
+	SceneColorTexture.GetDimensions(Width, Height);
+	
+	float2 UV = TexCoord.xy;
+	float2 BlurCenter = float2(0.5f,0.25f);
+	float2 BlurDirection = (BlurCenter - UV) * 0.02f;
+	
+	int iter = 5;
+	
+	float4 Result = float4(0, 0, 0, 0);
+	
+	for (int i = 0; i < iter; ++i)
+	{
+		Result += SceneColorTexture.Sample(SceneColorTextureSampler, UV);
+		UV += BlurDirection;
+	}
+	
+	Result /= iter;
+	
+	
+	OutColor = Result;
+}
